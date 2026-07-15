@@ -1,0 +1,32 @@
+<?php
+defined('MOODLE_INTERNAL') || die();
+
+$string['pluginname'] = 'Course Exporter';
+$string['courseexport:export'] = 'Export course materials';
+$string['selectcourse'] = 'Select a course to export';
+$string['export'] = 'Export';
+$string['nofilesfound'] = 'No files were found to export in this course';
+$string['exportcourse'] = 'Download by course';
+$string['exportcategory'] = 'Download courses by category';
+$string['selectcategory'] = 'Select a category to export';
+$string['includingsubcategories'] = 'Include subcategories';
+$string['nocourses'] = 'No courses available for export';
+$string['invalidcourse'] = 'Invalid course ID';
+$string['invalidcategory'] = 'Invalid category';
+$string['nocapability'] = 'You do not have permission to export courses';
+$string['filetypes'] = 'File types to include';
+$string['typedocuments'] = 'Documents (PDF, Word, Excel, PPT, TXT)';
+$string['typevideos'] = 'Videos (MP4, AVI, MOV, MKV)';
+$string['typearchives'] = 'Archives (ZIP, RAR, 7z, TAR)';
+$string['typeother'] = 'Other files';
+$string['progressscanning'] = 'Scanning content...';
+$string['progressready'] = 'Download ready, starting transfer...';
+$string['progresscourses'] = 'Courses';
+$string['progresssections'] = 'Sections';
+$string['progressfiles'] = 'Files';
+$string['record'] = 'Record';
+$string['selectall'] = 'Select all';
+$string['deselectall'] = 'Deselect all';
+$string['exportfailed'] = 'Export failed: {$a}';
+$string['exportinprogress'] = 'Export in progress, please wait...';
+$string['largeexportwarning'] = 'Large export ({$a} files) — may take several minutes';
