@@ -58,9 +58,9 @@ define(['jquery', 'core/str'], function($, Str) {
         if (state === 'pending') {
             btnHtml = '<button class="c-dl-btn" data-courseid="' + course.id + '">Descargar</button>';
         } else if (state === 'downloading') {
-            btnHtml = '<button class="c-dl-btn" disabled style="background:#ccc;color:#666;border:none;border-radius:4px;padding:.3em .7em;font-size:.8em;cursor:default">Descargando...</button>';
+            btnHtml = '<button class="c-dl-btn" disabled>Descargando...</button>';
         } else {
-            btnHtml = '<span style="color:#28a745;font-weight:600;font-size:.85em">\u2713 Completado</span>';
+            btnHtml = '<span class="c-done">\u2713 Completado</span>';
         }
         return '<div class="c-item" data-courseid="' + course.id + '">'
             + '<div class="c-icon ' + iconClasses[state] + '">' + icons[state] + '</div>'
@@ -80,7 +80,6 @@ define(['jquery', 'core/str'], function($, Str) {
         var html = '<div class="course-progress-header">'
             + '<div class="c-count" id="courses-count">Cursos disponibles: ' + courselist.length + '</div>'
             + '</div>'
-            + '<button id="download-all-btn" style="margin-bottom:.8em;padding:.4em 1em;background:#28a745;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.85em;font-weight:500">\u25BC Descargar todo</button>'
             + '<div class="course-list" id="course-list-container">';
         for (var i = 0; i < courselist.length; i++) {
             html += buildCourseItem(courselist[i], 'pending');
@@ -98,10 +97,6 @@ define(['jquery', 'core/str'], function($, Str) {
             downloadSingleCourse(courseId, courselist);
         });
 
-        $(document).off('click', '#download-all-btn').on('click', '#download-all-btn', function() {
-            downloadAllPending(courselist);
-        });
-
         $(document).off('click', '#reset-export-btn').on('click', '#reset-export-btn', function() {
             resetUI(submitBtn);
         });
@@ -114,7 +109,7 @@ define(['jquery', 'core/str'], function($, Str) {
         }
 
         item.find('.c-icon').removeClass('ci-ready ci-pend').addClass('ci-dl').text('\u25B6');
-        item.find('.c-dl-btn').prop('disabled', true).css({background: '#ccc', color: '#666'}).text('Descargando...');
+        item.find('.c-dl-btn').prop('disabled', true).text('Descargando...');
 
         var sesskey = $('#form-category input[name="sesskey"]').val();
         if (!sesskey) {
@@ -125,7 +120,7 @@ define(['jquery', 'core/str'], function($, Str) {
 
         setTimeout(function() {
             item.find('.c-icon').removeClass('ci-dl').addClass('ci-ready').text('\u2713');
-            item.find('.c-dl-btn').replaceWith('<span style="color:#28a745;font-weight:600;font-size:.85em">\u2713 Completado</span>');
+            item.find('.c-dl-btn').replaceWith('<span class="c-done">\u2713 Completado</span>');
 
             var remaining = $('.c-dl-btn').length;
             var total = $('.c-item').length;
@@ -137,36 +132,6 @@ define(['jquery', 'core/str'], function($, Str) {
                 $('#progress-bar-fill').css('width', '100%').css('background', '#28a745');
             }
         }, 2000);
-    }
-
-    function downloadAllPending(courselist) {
-        var pendingIds = [];
-        $('.c-item').each(function() {
-            if ($(this).find('.c-dl-btn').length > 0) {
-                pendingIds.push($(this).data('courseid'));
-            }
-        });
-
-        if (pendingIds.length === 0) {
-            return;
-        }
-
-        $('#download-all-btn').prop('disabled', true).text('Descargando todos...');
-
-        var i = 0;
-        function downloadNext() {
-            if (i >= pendingIds.length) {
-                $('#download-all-btn').text('\u25BC Descargar faltantes');
-                setTimeout(function() {
-                    $('#download-all-btn').prop('disabled', false).text('\u25BC Descargar todo');
-                }, 2000);
-                return;
-            }
-            downloadSingleCourse(pendingIds[i], courselist);
-            i++;
-            setTimeout(downloadNext, 3000);
-        }
-        downloadNext();
     }
 
     function doExport(form) {
