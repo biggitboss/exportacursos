@@ -65,7 +65,7 @@ class fileextractor {
         $result = [];
 
         foreach ($submissions as $submission) {
-            $user = $DB->get_record('user', ['id' => $submission->userid], 'id, firstname, lastname');
+            $user = $DB->get_record('user', ['id' => $submission->userid]);
             if (!$user) {
                 continue;
             }

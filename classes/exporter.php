@@ -63,6 +63,11 @@ class exporter {
             ob_end_clean();
         }
 
+        @ini_set('display_errors', '0');
+        global $CFG;
+        $CFG->debugdisplay = 0;
+        $CFG->debug = 0;
+
         try {
             if ($this->category) {
                 $rootname = self::sanitise_path($this->category->name);
