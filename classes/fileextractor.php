@@ -52,6 +52,65 @@ class fileextractor {
         return $result;
     }
 
+    public static function get_assign_submissions($cm) {
+        global $DB;
+
+        $submissions = $DB->get_records('assign_submission', [
+            'assignment' => $cm->instance,
+            'status' => 'submitted',
+        ], 'timemodified ASC');
+
+        $context = \context_module::instance($cm->id);
+        $fs = get_file_storage();
+        $result = [];
+
+        foreach ($submissions as $submission) {
+            $user = $DB->get_record('user', ['id' => $submission->userid], 'id, firstname, lastname');
+            if (!$user) {
+                continue;
+            }
+            $studentname = fullname($user);
+            $studentprefix = self::sanitise_student_name($studentname);
+
+            $onlinetext = '';
+            $onlinetextformat = FORMAT_HTML;
+            $onlinetextrec = $DB->get_record('assignsubmission_onlinetext', [
+                'submission' => $submission->id,
+            ]);
+            if ($onlinetextrec && !empty(trim(strip_tags($onlinetextrec->onlinetext)))) {
+                $onlinetext = $onlinetextrec->onlinetext;
+                $onlinetextformat = $onlinetextrec->onlineformat;
+            }
+
+            $files = [];
+            $storedfiles = $fs->get_area_files(
+                $context->id, 'assignsubmission_file', 'submission_files', $submission->id,
+                'timemodified ASC', false
+            );
+            foreach ($storedfiles as $file) {
+                $files[] = [
+                    'file' => $file,
+                    'zip_path' => $studentprefix . ' - ' . $file->get_filename(),
+                ];
+            }
+
+            $result[] = [
+                'studentname' => $studentname,
+                'files' => $files,
+                'onlinetext' => $onlinetext,
+                'onlinetextformat' => $onlinetextformat,
+            ];
+        }
+
+        return $result;
+    }
+
+    private static function sanitise_student_name($name) {
+        $name = preg_replace('/[\/\\\\:*?"<>|]/', '_', $name);
+        $name = preg_replace('/[\\x00-\\x1f]/', '', $name);
+        return trim($name);
+    }
+
     public static function get_url_link($cm) {
         global $DB, $CFG;
         $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);

@@ -31,6 +31,12 @@ class exporter {
                     if ($module['url']) {
                         $hassection = true;
                     }
+                    if (!empty($module['submissions'])) {
+                        $hassection = true;
+                        foreach ($module['submissions'] as $submission) {
+                            $total['files'] += count($submission['files']);
+                        }
+                    }
                 }
                 if ($hassection) {
                     $total['sections']++;
@@ -87,31 +93,34 @@ class exporter {
                     $courseroot = $coursename;
                 }
 
-                $sectionnav = [];
                 foreach ($sections as $section) {
                     $sectionpath = $courseroot . '/' . $section['path'];
-                    $sectionnav[] = ['path' => $section['path'], 'name' => $section['name']];
-
-                    $indexhtml = htmlgenerator::generate_section_index(
-                        $section['name'],
-                        $section['modules']
-                    );
-                    $zip->addFile($sectionpath . '/index.html', $indexhtml);
 
                     foreach ($section['modules'] as $module) {
+                        $modpath = $sectionpath . '/' . self::sanitise_path($module['name']);
+
                         foreach ($module['files'] as $fileentry) {
                             $filepath = $sectionpath . '/' . $fileentry['zip_path'];
                             $handle = $fileentry['file']->get_content_file_handle();
                             $zip->addFileFromStream($filepath, $handle);
                             fclose($handle);
                         }
+
+                        if (!empty($module['submissions'])) {
+                            foreach ($module['submissions'] as $submission) {
+                                foreach ($submission['files'] as $fileentry) {
+                                    $filepath = $modpath . '/' . $fileentry['zip_path'];
+                                    $handle = $fileentry['file']->get_content_file_handle();
+                                    $zip->addFileFromStream($filepath, $handle);
+                                    fclose($handle);
+                                }
+                            }
+                        }
                     }
                 }
 
-                if (!empty($sectionnav)) {
-                    $courseindex = htmlgenerator::generate_course_index($course->fullname, $sectionnav);
-                    $zip->addFile($courseroot . '/index.html', $courseindex);
-                }
+                $courseindex = htmlgenerator::generate_course_index($course->fullname, $sections);
+                $zip->addFile($courseroot . '/index.html', $courseindex);
             }
 
             $zip->finish();
