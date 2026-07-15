@@ -12,6 +12,13 @@ $context = context_system::instance();
 require_login();
 require_capability('local/courseexport:export', $context);
 
+if ($action === 'download_course') {
+    $singleid = required_param('courseid', PARAM_INT);
+    $course = get_course($singleid);
+    \local_courseexport\exporter::export_single($course);
+    exit;
+}
+
 if ($action === 'count') {
     @ini_set('display_errors', '0');
     $CFG->debugdisplay = 0;
@@ -28,11 +35,18 @@ if ($action === 'count') {
     }
     if (empty($courses)) {
         ob_end_clean();
-        echo json_encode(['courses' => 0, 'sections' => 0, 'files' => 0]);
+        echo json_encode(['courses' => 0, 'sections' => 0, 'files' => 0, 'courselist' => []]);
         exit;
     }
+
+    $courselist = [];
+    foreach ($courses as $c) {
+        $courselist[] = ['id' => $c->id, 'fullname' => $c->fullname];
+    }
+
     $exporter = new \local_courseexport\exporter($courses);
     $count = $exporter->count();
+    $count['courselist'] = $courselist;
     ob_end_clean();
     echo json_encode($count);
     exit;

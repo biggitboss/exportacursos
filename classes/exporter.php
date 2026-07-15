@@ -68,13 +68,16 @@ class exporter {
         $CFG->debugdisplay = 0;
         $CFG->debug = 0;
 
+        header('X-Accel-Buffering: no');
+        header('Content-Encoding: identity');
+
         try {
             if ($this->category) {
                 $rootname = self::sanitise_path($this->category->name);
                 $zipname = clean_filename($this->category->name) . '-export.zip';
             } else {
                 $rootname = self::sanitise_path($this->courses[0]->fullname);
-                $zipname = clean_filename($this->courses[0]->shortname) . '-export.zip';
+                $zipname = clean_filename($this->courses[0]->fullname) . '.zip';
             }
 
             $zip = new \ZipStream\ZipStream(
@@ -131,6 +134,11 @@ class exporter {
             debugging('Export failed: ' . $e->getMessage(), DEBUG_DEVELOPER);
             throw new \moodle_exception('exportfailed', 'local_courseexport', '', $e->getMessage());
         }
+    }
+
+    public static function export_single($course) {
+        $exporter = new self([$course]);
+        $exporter->export();
     }
 
     private static function sanitise_path($name) {
