@@ -32,31 +32,31 @@ define(['jquery', 'core/str'], function($, Str) {
         $('#progress-status').text(labels.progressready);
     }
 
-    function updateCategoryProgress(index, total, courselist) {
-        var html = '<div style="margin-bottom:.5em;font-weight:600">Descargados: ' + index + ' de ' + total + '</div>';
-        html += '<ul style="font-size:.9em;list-style:none;padding:0">';
-        for (var i = 0; i < courselist.length; i++) {
-            var c = courselist[i];
-            var icon, style;
-            if (i < index) {
-                icon = '\u2713';
-                style = 'color:#28a745';
-            } else if (i === index) {
-                icon = '\u2190';
-                style = 'color:#0f6cbf;font-weight:600';
-            } else {
-                icon = '\u23F3';
-                style = 'color:#999';
-            }
-            html += '<li style="' + style + ';margin:.2em 0">' + icon + ' ' + c.fullname + '</li>';
-        }
-        html += '</ul>';
-        $('#progress-stats').html(html);
-        $('#progress-title').text('Descargando cursos...');
-        $('#progress-status').text('Curso ' + (index + 1) + ' de ' + total);
+    function buildCourseItem(course, state) {
+        var icons = {ready: '\u2713', downloading: '\u25B6', pending: '\u25CB'};
+        var iconClasses = {ready: 'ci-ready', downloading: 'ci-dl', pending: 'ci-pend'};
+        var badgeClasses = {ready: 'cb-ready', downloading: 'cb-dl', pending: 'cb-pend'};
+        var badgeTexts = {ready: 'LISTO', downloading: 'DESCARGANDO', pending: 'PENDIENTE'};
+        return '<div class="c-item">'
+            + '<div class="c-icon ' + iconClasses[state] + '">' + icons[state] + '</div>'
+            + '<div class="c-name">' + course.fullname + '</div>'
+            + '<div class="c-badge ' + badgeClasses[state] + '">' + badgeTexts[state] + '</div>'
+            + '</div>';
+    }
 
+    function updateCategoryProgress(index, total, courselist) {
         var pct = total > 0 ? Math.round((index / total) * 100) : 0;
-        $('#progress-bar-fill').css('width', pct + '%');
+        var html = '<div class="course-progress-header">'
+            + '<div class="c-count">Descargados: ' + index + ' de ' + total + '</div>'
+            + '<div class="c-track"><div class="c-fill" style="width:' + pct + '%"></div></div>'
+            + '</div>';
+        html += '<div class="course-list">';
+        for (var i = 0; i < courselist.length; i++) {
+            var state = (i < index) ? 'ready' : (i === index ? 'downloading' : 'pending');
+            html += buildCourseItem(courselist[i], state);
+        }
+        html += '</div>';
+        $('#progress-stats').html(html);
     }
 
     function resetUI(submitBtn) {
@@ -91,14 +91,23 @@ define(['jquery', 'core/str'], function($, Str) {
                 $('#progress-title').text('Descarga completada');
                 $('#progress-status').text('Se descargaron ' + total + ' cursos');
                 $('#progress-bar-fill').css('width', '100%');
-                updateCategoryProgress(total, total, courselist);
+                var html = '<div class="course-progress-header">'
+                    + '<div class="c-count">Descargados: ' + total + ' de ' + total + '</div>'
+                    + '<div class="c-track"><div class="c-fill" style="width:100%;background:#28a745"></div></div>'
+                    + '</div><div class="course-list">';
+                for (var i = 0; i < courselist.length; i++) {
+                    html += buildCourseItem(courselist[i], 'ready');
+                }
+                html += '</div>';
                 if (!$('#reset-export-btn').length) {
-                    var btn = $('<button id="reset-export-btn" style="margin-top:1em;padding:.5em 1.5em;background:#0f6cbf;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:1em">Realizar otra exportaci\u00f3n</button>');
-                    btn.on('click', function() {
+                    html += '<button id="reset-export-btn" style="margin-top:1em;padding:.6em 1.5em;background:#0f6cbf;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.9em;font-weight:500;width:100%">Realizar otra exportaci\u00f3n</button>';
+                }
+                $('#progress-stats').html(html);
+                if (!$('#reset-export-btn').length) {
+                    $('#reset-export-btn').on('click', function() {
                         resetUI(submitBtn);
                         $(this).remove();
                     });
-                    $('#progress-stats').append(btn);
                 }
                 return;
             }

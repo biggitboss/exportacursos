@@ -73,7 +73,11 @@ echo html_writer::start_div('', ['id' => 'progress-modal', 'style' => 'display:n
 echo html_writer::tag('h3', get_string('progressscanning', 'local_courseexport'), ['id' => 'progress-title']);
 echo html_writer::tag('div', html_writer::tag('div', '', ['id' => 'progress-bar-fill', 'style' => 'width:0%;height:20px;background:#0f6cbf;border-radius:10px;transition:width .3s']), ['style' => 'background:#e0e0e0;border-radius:10px;margin:1em 0']);
 echo html_writer::tag('p', '', ['id' => 'progress-status']);
-echo html_writer::tag('div', '', ['id' => 'progress-stats', 'style' => 'display:flex;gap:2em;font-size:.9em;color:#555']);
+echo html_writer::tag('div', '', ['id' => 'progress-stats']);
+echo html_writer::tag('style', '
+.course-progress-header{margin-bottom:1em}.course-progress-header .c-count{font-weight:600;font-size:.95em;color:#333;margin-bottom:.4em}.course-progress-header .c-track{background:#e0e0e0;border-radius:6px;height:8px;overflow:hidden}.course-progress-header .c-track .c-fill{height:100%;border-radius:6px;background:#0f6cbf;transition:width .4s ease}
+.c-item{display:flex;align-items:center;padding:.6em .8em;margin-bottom:.35em;border-radius:6px;background:#fff;border:1px solid #e8e8e8;transition:all .15s}.c-item .c-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.8em;font-weight:700;flex-shrink:0}.c-item .c-icon.ci-ready{background:#d4edda;color:#28a745}.c-item .c-icon.ci-dl{background:#cce5ff;color:#0f6cbf}.c-item .c-icon.ci-pend{background:#f0f0f0;color:#bbb}.c-item .c-name{flex:1;margin-left:.7em;font-size:.88em;color:#333;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.c-item .c-badge{font-size:.7em;font-weight:600;padding:.25em .55em;border-radius:10px;text-transform:uppercase;letter-spacing:.03em;flex-shrink:0}.c-item .c-badge.cb-ready{background:#d4edda;color:#28a745}.c-item .c-badge.cb-dl{background:#cce5ff;color:#0f6cbf}.c-item .c-badge.cb-pend{background:#f0f0f0;color:#bbb}
+');
 echo html_writer::end_div();
 
 $PAGE->requires->js_call_amd('local_courseexport/export', 'init');
