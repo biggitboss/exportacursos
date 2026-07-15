@@ -13,6 +13,11 @@ require_login();
 require_capability('local/courseexport:export', $context);
 
 if ($action === 'count') {
+    @ini_set('display_errors', '0');
+    $CFG->debugdisplay = 0;
+    $CFG->debug = 0;
+    ob_start();
+
     $courses = [];
     if ($courseid) {
         $course = get_course($courseid);
@@ -22,11 +27,13 @@ if ($action === 'count') {
         $courses = $cat->get_courses(['recursive' => $recursive]);
     }
     if (empty($courses)) {
+        ob_end_clean();
         echo json_encode(['courses' => 0, 'sections' => 0, 'files' => 0]);
         exit;
     }
     $exporter = new \local_courseexport\exporter($courses);
     $count = $exporter->count();
+    ob_end_clean();
     echo json_encode($count);
     exit;
 }
