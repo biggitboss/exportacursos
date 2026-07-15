@@ -1,7 +1,7 @@
 <?php
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2026071407;
+$plugin->version   = 2026071408;
 $plugin->requires  = 2024100100;
 $plugin->component = 'local_courseexport';
 $plugin->maturity  = MATURITY_STABLE;

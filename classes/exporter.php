@@ -119,8 +119,6 @@ class exporter {
                     }
                 }
 
-                $courseindex = htmlgenerator::generate_course_index($course->fullname, $sections);
-                $zip->addFile($courseroot . '/index.html', $courseindex);
             }
 
             $zip->finish();
