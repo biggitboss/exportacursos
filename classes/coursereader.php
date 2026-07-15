@@ -6,7 +6,7 @@ defined('MOODLE_INTERNAL') || die();
 class coursereader {
     private $course;
 
-    private const SUPPORTED_MODULES = ['resource', 'url'];
+    private const SUPPORTED_MODULES = ['resource', 'url', 'folder'];
 
     public function __construct($course) {
         $this->course = $course;
@@ -79,6 +79,10 @@ class coursereader {
         switch ($cm->modname) {
             case 'resource':
                 $data['files'] = fileextractor::get_resource_files($cm);
+                break;
+
+            case 'folder':
+                $data['files'] = fileextractor::get_folder_files($cm);
                 break;
 
             case 'url':

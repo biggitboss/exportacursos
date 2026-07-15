@@ -30,6 +30,28 @@ class fileextractor {
         return $result;
     }
 
+    public static function get_folder_files($cm) {
+        $fs = get_file_storage();
+        $context = \context_module::instance($cm->id);
+        $files = $fs->get_area_files(
+            $context->id, 'mod_folder', 'content', 0,
+            'sortorder DESC, id ASC', false
+        );
+        $result = [];
+        foreach ($files as $file) {
+            $ext = strtolower(pathinfo($file->get_filename(), PATHINFO_EXTENSION));
+            if (!in_array($ext, self::$document_extensions)) {
+                continue;
+            }
+            $zip_path = ltrim($file->get_filepath() . $file->get_filename(), '/');
+            $result[] = [
+                'file' => $file,
+                'zip_path' => $zip_path,
+            ];
+        }
+        return $result;
+    }
+
     public static function get_url_link($cm) {
         global $DB, $CFG;
         $urlrecord = $DB->get_record('url', ['id' => $cm->instance], '*', MUST_EXIST);
