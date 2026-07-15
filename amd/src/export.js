@@ -90,10 +90,16 @@ define(['jquery', 'core/str'], function($, Str) {
             if (index >= total) {
                 $('#progress-title').text('Descarga completada');
                 $('#progress-status').text('Se descargaron ' + total + ' cursos');
+                $('#progress-bar-fill').css('width', '100%');
                 updateCategoryProgress(total, total, courselist);
-                setTimeout(function() {
-                    resetUI(submitBtn);
-                }, 4000);
+                if (!$('#reset-export-btn').length) {
+                    var btn = $('<button id="reset-export-btn" style="margin-top:1em;padding:.5em 1.5em;background:#0f6cbf;color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:1em">Realizar otra exportaci\u00f3n</button>');
+                    btn.on('click', function() {
+                        resetUI(submitBtn);
+                        $(this).remove();
+                    });
+                    $('#progress-stats').append(btn);
+                }
                 return;
             }
 
