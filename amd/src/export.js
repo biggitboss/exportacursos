@@ -5,7 +5,7 @@ define(['jquery', 'core/str'], function($, Str) {
     function loadStrings() {
         var keys = [
             'progressscanning', 'progressready', 'progresscourses', 'progresssections',
-            'progressfiles', 'selectall', 'deselectall', 'largeexportwarning', 'exportinprogress'
+            'progressfiles', 'exportinprogress'
         ];
         var promises = keys.map(function(k) {
             return Str.get_string(k, 'local_courseexport');
@@ -16,14 +16,6 @@ define(['jquery', 'core/str'], function($, Str) {
                 labels[k] = args[i];
             });
         });
-    }
-
-    function toggleFileTypes(link) {
-        var formId = link.getAttribute('data-form');
-        var checkboxes = $('#' + formId + ' input[name="filetypes[]"]');
-        var allChecked = checkboxes.length === checkboxes.filter(':checked').length;
-        checkboxes.prop('checked', !allChecked);
-        link.textContent = allChecked ? labels.selectall : labels.deselectall;
     }
 
     function showProgress(data) {
@@ -40,10 +32,6 @@ define(['jquery', 'core/str'], function($, Str) {
             ' <span>' + labels.progressfiles + ': ' + data.files + '</span>'
         );
         $('#progress-status').text(labels.progressready);
-
-        if (data.files > 500) {
-            $('#largeexport-warning').text(labels.largeexportwarning.replace('{$a}', data.files)).show();
-        }
     }
 
     function doExport(form) {
@@ -73,7 +61,6 @@ define(['jquery', 'core/str'], function($, Str) {
 
             setTimeout(function() {
                 $('#progress-modal').hide();
-                $('#largeexport-warning').hide();
                 submitBtn.prop('disabled', false).val(submitBtn.data('original-value'));
                 $('#progress-bar-fill').css('background', '#007bff');
                 $('select[name="courseid"], select[name="categoryid"]').val('');
@@ -82,7 +69,7 @@ define(['jquery', 'core/str'], function($, Str) {
             var msg = jqXHR.responseJSON ? (jqXHR.responseJSON.error || jqXHR.responseJSON.message) : null;
             $('#progress-status').text(msg || (jqXHR.responseText || labels.progressready));
             $('#progress-bar-fill').css('width', '100%').css('background', '#dc3545');
-            submitBtn.prop('disabled', false).val(submitBtn.data('original-value') || 'Export');
+            submitBtn.prop('disabled', false).val(submitBtn.data('original-value'));
             setTimeout(function() {
                 form.submit();
             }, 3000);
@@ -92,11 +79,6 @@ define(['jquery', 'core/str'], function($, Str) {
     return {
         init: function() {
             loadStrings().then(function() {
-                $('.toggle-filetypes').on('click', function(e) {
-                    e.preventDefault();
-                    toggleFileTypes(this);
-                });
-
                 $('#form-course, #form-category').on('submit', function(e) {
                     e.preventDefault();
                     var btn = $(this).find('input[type="submit"]');

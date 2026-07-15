@@ -14,11 +14,7 @@ class htmlgenerator {
             . 'a:hover{text-decoration:underline}'
             . 'ul{list-style:none;padding:0}'
             . 'li{margin:.4em 0;padding:.4em .6em;background:#f5f7fa;border-radius:4px}'
-            . 'li:hover{background:#e8ecf0}'
-            . '.module-name{font-weight:600;margin:1em 0 .3em;color:#555}'
-            . '.embed-placeholder{color:#888;font-style:italic;padding:.5em;background:#fafafa;border-left:3px solid #ddd}'
-            . '.content-box{padding:.8em;background:#fff;border:1px solid #e0e0e0;border-radius:4px;margin:.5em 0}'
-            . '.nav-links{display:flex;justify-content:space-between;margin-top:2em;padding-top:1em;border-top:1px solid #eee}';
+            . 'li:hover{background:#e8ecf0}';
     }
 
     public static function generate_course_index($coursename, array $sections) {
@@ -55,143 +51,7 @@ class htmlgenerator {
                 continue;
             }
 
-            if ($type === 'label') {
-                if (!empty($module['content'])) {
-                    $html .= '<div class="content-box">';
-                    $content = format_text($module['content'], $module['contentformat'], [
-                        'noclean' => true, 'filter' => false,
-                    ]);
-                    $content = self::filter($content);
-                    $html .= $content;
-                    $html .= '</div>';
-                }
-                if (!empty($module['files'])) {
-                    $html .= '<ul>';
-                    foreach ($module['files'] as $f) {
-                        $href = s($f['zip_path']);
-                        $label = s(basename($f['zip_path']));
-                        $html .= '<li><a href="' . $href . '">' . $label . '</a></li>';
-                    }
-                    $html .= '</ul>';
-                }
-                continue;
-            }
-
-            if ($type === 'page') {
-                $html .= '<h2>' . s($name) . '</h2>';
-                if (!empty($module['files'])) {
-                    $html .= '<ul>';
-                    foreach ($module['files'] as $f) {
-                        $href = s($f['zip_path']);
-                        $label = s(basename($f['zip_path']));
-                        $html .= '<li><a href="' . $href . '">' . $label . '</a></li>';
-                    }
-                    $html .= '</ul>';
-                }
-                if (!empty($module['content'])) {
-                    $html .= '<div class="content-box">';
-                    $content = format_text($module['content'], $module['contentformat'], [
-                        'noclean' => true, 'filter' => false,
-                    ]);
-                    $content = self::filter($content);
-                    $html .= $content;
-                    $html .= '</div>';
-                }
-                continue;
-            }
-
-            if ($type === 'book' && !empty($module['chapters'])) {
-                $html .= '<h2>' . s($name) . '</h2>';
-                foreach ($module['chapters'] as $ch) {
-                    if ($ch['hidden']) {
-                        continue;
-                    }
-                    $html .= '<h3>' . s($ch['title']) . '</h3>';
-                    if (!empty($ch['content'])) {
-                        $html .= '<div class="content-box">';
-                        $content = format_text($ch['content'], $ch['contentformat'], [
-                            'noclean' => true, 'filter' => false,
-                        ]);
-                        $content = self::filter($content);
-                        $html .= $content;
-                        $html .= '</div>';
-                    }
-                }
-                if (!empty($module['files'])) {
-                    $html .= '<ul>';
-                    foreach ($module['files'] as $f) {
-                        $href = s($f['zip_path']);
-                        $label = s(basename($f['zip_path']));
-                        $html .= '<li><a href="' . $href . '">' . $label . '</a></li>';
-                    }
-                    $html .= '</ul>';
-                }
-                continue;
-            }
-
-            if ($type === 'glossary' && !empty($module['entries'])) {
-                $html .= '<h2>' . s($name) . '</h2>';
-                $html .= '<dl>';
-                foreach ($module['entries'] as $entry) {
-                    $html .= '<dt><strong>' . s($entry['concept']) . '</strong></dt>';
-                    if (!empty($entry['definition'])) {
-                        $html .= '<dd class="content-box">';
-                        $content = format_text($entry['definition'], $entry['definitionformat'], [
-                            'noclean' => true, 'filter' => false,
-                        ]);
-                        $content = self::filter($content);
-                        $html .= $content;
-                        $html .= '</dd>';
-                    }
-                }
-                $html .= '</dl>';
-                if (!empty($module['files'])) {
-                    $html .= '<ul>';
-                    foreach ($module['files'] as $f) {
-                        $href = s($f['zip_path']);
-                        $label = s(basename($f['zip_path']));
-                        $html .= '<li><a href="' . $href . '">' . $label . '</a></li>';
-                    }
-                    $html .= '</ul>';
-                }
-                continue;
-            }
-
-            if ($type === 'data' && !empty($module['records'])) {
-                $html .= '<h2>' . s($name) . '</h2>';
-                foreach ($module['records'] as $ri => $rec) {
-                    $html .= '<div class="content-box">';
-                    $html .= '<h3>' . get_string('record', 'local_courseexport') . ' #' . ($ri + 1) . '</h3>';
-                    foreach ($rec['fields'] as $field) {
-                        $html .= '<p><strong>' . s($field['name']) . ':</strong> ';
-                        if ($field['type'] === 'textarea') {
-                            $content = format_text($field['value'], FORMAT_HTML, [
-                                'noclean' => true, 'filter' => false,
-                            ]);
-                            $content = self::filter($content);
-                            $html .= $content;
-                        } else if ($field['type'] === 'checkbox') {
-                            $html .= $field['value'] ? '✓' : '✗';
-                        } else {
-                            $html .= s($field['value']);
-                        }
-                        $html .= '</p>';
-                    }
-                    $html .= '</div>';
-                }
-                if (!empty($module['files'])) {
-                    $html .= '<ul>';
-                    foreach ($module['files'] as $f) {
-                        $href = s($f['zip_path']);
-                        $label = s(basename($f['zip_path']));
-                        $html .= '<li><a href="' . $href . '">' . $label . '</a></li>';
-                    }
-                    $html .= '</ul>';
-                }
-                continue;
-            }
-
-            $html .= '<div class="module-name">' . s($name) . '</div>';
+            $html .= '<h2>' . s($name) . '</h2>';
             if (!empty($module['files'])) {
                 $html .= '<ul>';
                 foreach ($module['files'] as $f) {
@@ -205,9 +65,5 @@ class htmlgenerator {
 
         $html .= '</body></html>';
         return $html;
-    }
-
-    private static function filter($content) {
-        return embedfilter::filter($content);
     }
 }

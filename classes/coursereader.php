@@ -6,7 +6,7 @@ defined('MOODLE_INTERNAL') || die();
 class coursereader {
     private $course;
 
-    private const SUPPORTED_MODULES = ['resource', 'folder', 'page', 'label', 'url', 'book', 'glossary', 'data', 'imscp'];
+    private const SUPPORTED_MODULES = ['resource', 'url'];
 
     public function __construct($course) {
         $this->course = $course;
@@ -73,8 +73,6 @@ class coursereader {
             'type' => $cm->modname,
             'name' => $cm->name,
             'files' => [],
-            'content' => null,
-            'contentformat' => null,
             'url' => null,
         ];
 
@@ -83,49 +81,8 @@ class coursereader {
                 $data['files'] = fileextractor::get_resource_files($cm);
                 break;
 
-            case 'folder':
-                $data['files'] = fileextractor::get_folder_files($cm);
-                break;
-
-            case 'page':
-                $pagedata = fileextractor::get_page_content($cm);
-                $data['content'] = $pagedata['content'];
-                $data['contentformat'] = $pagedata['contentformat'];
-                $data['files'] = $pagedata['files'];
-                break;
-
-            case 'label':
-                $labeldata = fileextractor::get_label_content($cm);
-                $data['content'] = $labeldata['content'];
-                $data['contentformat'] = $labeldata['contentformat'];
-                $data['files'] = $labeldata['files'];
-                break;
-
             case 'url':
                 $data['url'] = fileextractor::get_url_link($cm);
-                break;
-
-            case 'book':
-                $bookdata = fileextractor::get_book_chapters($cm);
-                $data['chapters'] = $bookdata['chapters'];
-                $data['files'] = $bookdata['files'];
-                break;
-
-            case 'glossary':
-                $glossarydata = fileextractor::get_glossary_entries($cm);
-                $data['entries'] = $glossarydata['entries'];
-                $data['files'] = $glossarydata['files'];
-                break;
-
-            case 'data':
-                $datadata = fileextractor::get_database_records($cm);
-                $data['fields'] = $datadata['fields'];
-                $data['records'] = $datadata['records'];
-                $data['files'] = $datadata['files'];
-                break;
-
-            case 'imscp':
-                $data['files'] = fileextractor::get_imscp_files($cm);
                 break;
         }
 

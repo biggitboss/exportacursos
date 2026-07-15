@@ -7,13 +7,11 @@ class exporter {
     private $courses;
     private $category;
     private $recursive;
-    private $filetypes;
 
-    public function __construct(array $courses, $category = null, $recursive = false, array $filetypes = []) {
+    public function __construct(array $courses, $category = null, $recursive = false) {
         $this->courses = $courses;
         $this->category = $category;
         $this->recursive = $recursive;
-        $this->filetypes = $filetypes;
     }
 
     public function count(): array {
@@ -26,22 +24,11 @@ class exporter {
             foreach ($sections as $section) {
                 $hassection = false;
                 foreach ($section['modules'] as $module) {
-                    foreach ($module['files'] as $fileentry) {
-                        if (fileextractor::filter_file($fileentry['zip_path'], $this->filetypes)) {
-                            $hassection = true;
-                            $total['files']++;
-                        }
-                    }
-                    if ($module['url'] || $module['content']) {
+                    if (!empty($module['files'])) {
                         $hassection = true;
+                        $total['files'] += count($module['files']);
                     }
-                    if (!empty($module['chapters'])) {
-                        $hassection = true;
-                    }
-                    if (!empty($module['entries'])) {
-                        $hassection = true;
-                    }
-                    if (!empty($module['records'])) {
+                    if ($module['url']) {
                         $hassection = true;
                     }
                 }
@@ -65,6 +52,10 @@ class exporter {
 
         \core\session\manager::write_close();
         @set_time_limit(0);
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
 
         try {
             if ($this->category) {
@@ -98,17 +89,6 @@ class exporter {
 
                 $sectionnav = [];
                 foreach ($sections as $section) {
-                    foreach ($section['modules'] as &$module) {
-                        $filtered = [];
-                        foreach ($module['files'] as $fe) {
-                            if (fileextractor::filter_file($fe['zip_path'], $this->filetypes)) {
-                                $filtered[] = $fe;
-                            }
-                        }
-                        $module['files'] = $filtered;
-                    }
-                    unset($module);
-
                     $sectionpath = $courseroot . '/' . $section['path'];
                     $sectionnav[] = ['path' => $section['path'], 'name' => $section['name']];
 

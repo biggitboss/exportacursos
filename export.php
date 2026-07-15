@@ -5,7 +5,6 @@ $action = optional_param('action', 'download', PARAM_ALPHA);
 $courseid = optional_param('courseid', 0, PARAM_INT);
 $categoryid = optional_param('categoryid', 0, PARAM_INT);
 $recursive = optional_param('recursive', 0, PARAM_BOOL);
-$filetypes = optional_param_array('filetypes', [], PARAM_ALPHA);
 $sesskey = required_param('sesskey', PARAM_RAW);
 
 require_sesskey();
@@ -26,7 +25,7 @@ if ($action === 'count') {
         echo json_encode(['courses' => 0, 'sections' => 0, 'files' => 0]);
         exit;
     }
-    $exporter = new \local_courseexport\exporter($courses, null, $recursive, $filetypes);
+    $exporter = new \local_courseexport\exporter($courses);
     $count = $exporter->count();
     echo json_encode($count);
     exit;
@@ -35,7 +34,7 @@ if ($action === 'count') {
 try {
     if ($courseid) {
         $course = get_course($courseid);
-        $exporter = new \local_courseexport\exporter([$course], null, false, $filetypes);
+        $exporter = new \local_courseexport\exporter([$course]);
         $exporter->export();
     } elseif ($categoryid) {
         $cat = core_course_category::get($categoryid, MUST_EXIST, true);
@@ -48,7 +47,7 @@ try {
                 \core\output\notification::NOTIFY_ERROR
             );
         }
-        $exporter = new \local_courseexport\exporter($courses, $cat, $recursive, $filetypes);
+        $exporter = new \local_courseexport\exporter($courses, $cat, $recursive);
         $exporter->export();
     } else {
         redirect(
